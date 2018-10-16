@@ -34,7 +34,7 @@ class StudentTest {
 
     @Test
     void studentCRUD() {
-        final Student s1 = create("Daniel", "Humberto Cavalcante Vassalo");
+        final Student s1 = create("first name", "last name");
         get(s1);
 
         for (int i = 0; i < 50; i++) {
@@ -42,7 +42,7 @@ class StudentTest {
             s1.setCredits(credits);
             update(s1);
         }
-        s1.setLastName("Dan");
+        s1.setLastName("las");
         s1.setLastName("Vassalo");
         update(s1);
 

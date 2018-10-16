@@ -46,8 +46,7 @@ class CourseTest {
     }
 
 
-    private Course create() {
-        final String name = "test name";
+    private Course create(String name) {
         final Course course = new Course(name);
         final Course saved = dbTesting.inTransaction(() -> dao.persist(course));
 
