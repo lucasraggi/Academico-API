@@ -30,13 +30,12 @@ class CourseTest {
 
     @Test
     void courseCRUD() {
-        final Course c1 = create();
-        final Course c3 = create();
-
-        c1.setName("new course name");
-        c1.addSubject(new Subject());
+        final Course c1 = create("test name 1");
+        final Course c3 = create("test name 2");
         update(c1);
         delete(c1);
+
+        c1.addSubject(new Subject());
 
         assertEquals(1, dbTesting.inTransaction(dao::getAll).size(),
                 "Course wasnt removed");

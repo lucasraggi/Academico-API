@@ -32,13 +32,14 @@ class DepartmentTest {
 
     @Test
     void departmentCRUD() {
-        final Department d1 = create();
+        final Department d1 = create("test name");
+        update(d1);
         delete(d1);
 
         assertEquals(0, dbTesting.inTransaction(dao::getAll).size(),
                 "department was not removed");
 
-        final Department d2 = create();
+        final Department d2 = create("test name 2");
 
         assertEquals(1, dbTesting.inTransaction(dao::getAll).size(),
                 "department not appearing on department get all");

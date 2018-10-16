@@ -34,15 +34,14 @@ class SecretaryTest {
     @Test
     void secretaryCRUD() {
         final Secretary s1 = create("GRADUATION");
-        delete(s1);
-
+        update(s1);
         assertEquals(s1.getId(), dbTesting.inTransaction(dao::getAll).get(0).getId(), "secretary is not on database");
+        
+        delete(s1);
         assertEquals(0, dbTesting.inTransaction(dao::getAll).size(), "secretary wasnt removed from database");
 
         final Secretary s2 = create("POST-GRADUATION");
-        get(s2);
         final Secretary s3 = create("GRADUATION");
-        get(s3);
 
         assertEquals(2, dbTesting.inTransaction(dao::getAll).size(),
                 "secretary's wasn created correctly");
@@ -62,7 +61,7 @@ class SecretaryTest {
 
     private void update(Secretary secretary) {
         final Secretary updated = dbTesting.inTransaction(() -> dao.persist(secretary));
-        assertEquals(secretary.getId(), recovered.getId(), "secretary id is incorrect");
+        assertEquals(secretary.getId(), updated.getId(), "secretary id is incorrect");
         assertEquals(secretary.getType(), updated.getType(), "secretary type is incorrect");
         assertEquals(secretary.getCourses(), updated.getCourses(), "secretary courses are incorrect");
     }
