@@ -1,0 +1,32 @@
+university: UFAL
+state: Alagoas
+port: 1
+
+server:
+  type: simple
+  applicationContextPath: /academico
+  adminContextPath: /admin
+  connector:
+    type: http
+    port: 3000
+
+logging:
+  level: INFO
+  loggers:
+    org.hibernate: WARN
+    io.dropwizard: INFO
+    br.ufal.ic: TRACE
+    org.eclipse.jetty.servlets: INFO
+  appenders:
+    - type: console
+
+database:
+  # the name of your JDBC driver
+  driverClass: org.h2.Driver
+  user: userdb
+  password: passworddb
+  url: jdbc:h2:./academicodb
+  properties:
+    charSet: UTF-8
+    hibernate.dialect: org.hibernate.dialect.H2Dialect
+    hibernate.hbm2ddl.auto: update
