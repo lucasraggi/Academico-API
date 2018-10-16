@@ -36,7 +36,7 @@ class SecretaryTest {
         final Secretary s1 = create("GRADUATION");
         update(s1);
         assertEquals(s1.getId(), dbTesting.inTransaction(dao::getAll).get(0).getId(), "secretary is not on database");
-        
+
         delete(s1);
         assertEquals(0, dbTesting.inTransaction(dao::getAll).size(), "secretary wasnt removed from database");
 
