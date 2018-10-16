@@ -9,8 +9,5 @@
         <module name="academico" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="academico" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>

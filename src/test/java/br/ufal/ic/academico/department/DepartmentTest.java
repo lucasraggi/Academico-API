@@ -30,43 +30,45 @@ class DepartmentTest {
 
     @Test
     void departmentCRUD() {
-        final Department d1 = create("test name");
-        update(d1);
-        delete(d1);
+        Department department1 = create("test name");
+        update(department1);
+        delete(department1);
 
         assertEquals(0, dbTesting.inTransaction(dao::getAll).size(),
                 "department was not removed");
 
-        final Department d2 = create("test name 2");
+        Department department2 = create("test name 2");
 
         assertEquals(1, dbTesting.inTransaction(dao::getAll).size(),
                 "department not appearing on department get all");
-        assertEquals(d2.getId(), dbTesting.inTransaction(dao::getAll).get(0).getId(),
+        assertEquals(department2.getId(), dbTesting.inTransaction(dao::getAll).get(0).getId(),
                 "department could not be reached");
     }
 
     private Department create(String name) {
-        final Department department = new Department(name);
-        final Department saved = dbTesting.inTransaction(() -> dao.persist(department));
+        Department department = new Department(name);
+        Department departmentDB = dbTesting.inTransaction(() -> dao.persist(department));
 
         assertAll(
-                () -> assertNotNull(saved, "failed to save department"),
-                () -> assertNotNull(saved.getId(), "department did not receiva an id"),
-                () -> assertEquals(department.getName(), saved.getName(), "department name is different from the predicted"),
-                () -> assertNull(saved.getGraduate(), "department received an graduation secretary when it shouldnt"),
-                () -> assertNull(saved.getPostgraduate(), "department received an graduation secretary when it shouldnt")
+                () -> assertNotNull(departmentDB, "failed to save department"),
+                () -> assertNotNull(departmentDB.getId(), "department did not receiva an id"),
+                () -> assertEquals(department.getName(), departmentDB.getName(), "department name is different from the predicted"),
+                () -> assertNull(departmentDB.getGraduate(), "department received an graduation secretary when it shouldnt"),
+                () -> assertNull(departmentDB.getPostgraduate(), "department received an graduation secretary when it shouldnt")
         );
 
         return department;
     }
 
     private void update(Department department) {
-        final Department d = dbTesting.inTransaction(() -> dao.persist(department));
+        Department d = dbTesting.inTransaction(() -> dao.persist(department));
 
-        assertEquals(department.getId(), d.getId(), "department id is incorrect");
-        assertEquals(department.getName(), d.getName(), "department name is incorrect");
-        assertEquals(department.getGraduate(), d.getGraduate(), "graduation secretary is incorrect");
-        assertEquals(department.getPostgraduate(), d.getPostgraduate(), "post graduation secretary is incorrect");
+        assertAll(
+                () -> assertEquals(department.getId(), d.getId(), "department id is incorrect"),
+                () -> assertEquals(department.getName(), d.getName(), "department name is incorrect"),
+                () -> assertEquals(department.getGraduate(), d.getGraduate(), "graduation secretary is incorrect"),
+                () -> assertEquals(department.getPostgraduate(), d.getPostgraduate(), "post graduation secretary is incorrect")
+        );
     }
 
     private void delete(Department department) {

@@ -28,15 +28,17 @@ class CourseTest {
 
     @Test
     void courseCRUD() {
-        final Course c1 = create("test name 1");
-        final Course c3 = create("test name 2");
+        Course c1 = create("test name 1");
+        c1.setName("test name 0");
         update(c1);
         delete(c1);
 
         c1.addSubject(new Subject());
 
-        assertEquals(1, dbTesting.inTransaction(dao::getAll).size(),
+        assertEquals(0, dbTesting.inTransaction(dao::getAll).size(),
                 "Course wasnt removed");
+
+        Course c3 = create("test name 2");
 
         assertEquals(c3.getId(), dbTesting.inTransaction(dao::getAll).get(0).getId(),
                 "Get couldn't reach Course 3");
@@ -44,14 +46,14 @@ class CourseTest {
 
 
     private Course create(String name) {
-        final Course course = new Course(name);
-        final Course saved = dbTesting.inTransaction(() -> dao.persist(course));
+        Course course = new Course(name);
+        Course courseDB = dbTesting.inTransaction(() -> dao.persist(course));
 
         assertAll(
-                () -> assertNotNull(saved, "failed to save course"),
-                () -> assertNotNull(saved.getId(), "Course did not receive an id"),
-                () -> assertEquals(name, saved.getName(), "course name could not be attributed"),
-                () -> assertNotNull(saved.getSubjects(), "course name could not be attributed")
+                () -> assertNotNull(courseDB, "failed to save course"),
+                () -> assertNotNull(courseDB.getId(), "Course did not receive an id"),
+                () -> assertEquals(name, courseDB.getName(), "course name could not be attributed"),
+                () -> assertNotNull(courseDB.getSubjects(), "course name could not be attributed")
         );
 
 
@@ -60,7 +62,7 @@ class CourseTest {
 
 
     private void update(Course course) {
-        final Course c = dbTesting.inTransaction(() -> dao.persist(course));
+        Course c = dbTesting.inTransaction(() -> dao.persist(course));
 
         assertAll(
                 () -> assertEquals(course.getId(), c.getId(), "updated course id is different"),
