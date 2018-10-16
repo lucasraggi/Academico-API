@@ -11,9 +11,7 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 class CourseTest {
@@ -49,11 +47,13 @@ class CourseTest {
         final Course course = new Course(name);
         final Course saved = dbTesting.inTransaction(() -> dao.persist(course));
 
-        assertNotNull(saved, "failed to save course");
-        assertNotNull(saved.getId(), "Course did not receive an id");
-        assertEquals(name, saved.getName(), "course name could not be attributed");
-        assertNotNull(saved.getSubjects(), "course name could not be attributed");
-        assertNull(dbTesting.inTransaction(() -> dao.getSecretary(saved)), "Course foi associado à uma Secretary");
+        assertAll(
+                () -> assertNotNull(saved, "failed to save course"),
+                () -> assertNotNull(saved.getId(), "Course did not receive an id"),
+                () -> assertEquals(name, saved.getName(), "course name could not be attributed"),
+                () -> assertNotNull(saved.getSubjects(), "course name could not be attributed")
+        );
+
 
         return course;
     }
@@ -61,9 +61,12 @@ class CourseTest {
 
     private void update(Course course) {
         final Course c = dbTesting.inTransaction(() -> dao.persist(course));
-        assertEquals(course.getId(), c.getId(), "updated course id is different");
-        assertEquals(course.getName(), c.getName(), "updated course name is different");
-        assertNotNull(c.getSubjects(), "updated course subjects is different");
+
+        assertAll(
+                () -> assertEquals(course.getId(), c.getId(), "updated course id is different"),
+                () -> assertEquals(course.getName(), c.getName(), "updated course name is different"),
+                () -> assertNotNull(c.getSubjects(), "updated course subjects is different")
+        );
     }
 
     private void delete(Course course) {

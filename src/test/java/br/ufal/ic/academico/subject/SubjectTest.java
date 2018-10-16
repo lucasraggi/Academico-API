@@ -5,7 +5,6 @@ import br.ufal.ic.academico.api.teacher.*;
 import br.ufal.ic.academico.api.course.*;
 import br.ufal.ic.academico.api.subject.*;
 import br.ufal.ic.academico.api.secretary.*;
-import br.ufal.ic.academico.api.department.*;
 
 import io.dropwizard.testing.junit5.DAOTestExtension;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -33,88 +32,59 @@ class SubjectTest {
 
     @Test
     void subjectCRUD() {
-        final Subject d1 = create("Programação 1", "CC001", 80, 0, new ArrayList<>());
-        get(d1);
-
-        d1.setTeacher(new Teacher("Rodrigo", "Paes"));
-        d1.setCredits(60);
-        d1.setRequiredCredits(100);
-        List<String> preRequisites = new ArrayList<>();
-        preRequisites.add("CC002");
-        preRequisites.add("CC003");
-        d1.setRequiredSubjects(preRequisites);
-        update(d1);
-
-        delete(d1);
+        final Subject subject1 = create("subject name", "code", 80, 0, new ArrayList<>());
+        get(subject1);
+        update(subject1);
+        delete(subject1);
 
         assertEquals(0, dbTesting.inTransaction(dao::getAll).size(),
-                "Subject1 não foi removido da listagem total de Subjects");
+                "subject was not removed from get all");
 
-        final Subject d2 = create("Programação 2", "CC002", 0, 0, new ArrayList<>());
-        get(d2);
-        final Subject d3 = create("Teste de Software", "CC003", 0, 0, new ArrayList<>());
-        get(d3);
+        final Subject subject2 = create("subject name", "code", 0, 0, new ArrayList<>());
+        get(subject2);
+        final Subject subject3 = create("subject name2", "code2", 0, 0, new ArrayList<>());
+        get(subject3);
 
         assertEquals(2, dbTesting.inTransaction(dao::getAll).size(),
-                "Nem todas as novas Subjects estão aparecendo na listagem total de Subjects");
+                "subject was not found in get all");
 
-        delete(d2);
-
-        assertEquals(1, dbTesting.inTransaction(dao::getAll).size(),
-                "Subject2 não foi removido da listagem total de Subjects");
-        assertEquals(d3.getId(), dbTesting.inTransaction(dao::getAll).get(0).getId(),
-                "Subject3 não está na listagem total de Subjects");
     }
 
     private Subject create(String name, String code, Integer credits, Integer requiredCredits, List<String> requiredSubjects) {
         final Subject subject = new Subject(name, code, credits, requiredCredits, requiredSubjects);
-
         final Subject saved = dbTesting.inTransaction(() -> dao.persist(subject));
-        assertNull(dbTesting.inTransaction(() -> dao.getCourse(subject)), "Subject foi associada a um Course ao ser criada");
-        assertNull(dbTesting.inTransaction(() -> dao.getSecretary(subject)), "Subject foi associada a uma Secretary ao ser criada");
-        assertNotNull(saved, "Falhou ao salvar uma nova Subject");
-        assertNotNull(saved.getId(), "Subject não recebeu um id ao ser criada");
-        assertEquals(code, saved.getCode(), "Code da Subject não corresponde com o informado");
-        assertEquals(name, saved.getName(), "Name da Subject não corresponde com o informado");
-        assertEquals(credits, saved.getCredits(), "Credits não corresponde com o informado");
-        assertEquals(requiredCredits, saved.getRequiredCredits(), "Required Credits não corresponde com o informado");
-        assertEquals(requiredSubjects.size(), saved.getRequiredSubjects().size(), "Pré-requisitos foram associados incorretamente");
-        assertNull(saved.getTeacher(), "Um teacher foi associado à nova Subject");
-        assertEquals(new ArrayList<>(), saved.getStudents(), "Aluno(s) foi(ram) associado(s) à nova Subject");
+
+        assertNotNull(saved.getId(), "subject id is null");
+        assertEquals(code, saved.getCode(), "subject code is incorrect");
+        assertEquals(name, saved.getName(), "subject name is incorrect");
+        assertEquals(credits, saved.getCredits(), "subject credits is incorrect");
+        assertEquals(requiredCredits, saved.getRequiredCredits(), "subject required credits is incorrect");
+        assertEquals(requiredSubjects, saved.getRequiredSubjects(), "subject required subjects is incorrect");
 
         return subject;
     }
 
     private void get(Subject subject) {
-        Subject recovered = dbTesting.inTransaction(() -> dao.get(subject.getId()));
+        Subject retrieved = dbTesting.inTransaction(() -> dao.get(subject.getId()));
 
-        assertEquals(subject.getId(), recovered.getId(), "ID da Subject recuperada não confere com o informado");
-        assertEquals(subject.getName(), recovered.getName(), "Name da Subject recuperada não confere com o informada");
-        assertEquals(subject.getCode(), recovered.getCode(), "Code da Subject recuperada não confere com o informado");
-        assertEquals(subject.getCredits(), recovered.getCredits(), "Credits da Subject recuperada não confere com o informado");
-        assertEquals(subject.getRequiredCredits(), recovered.getRequiredCredits(),
-                "Required Credits da Subject recuperada não confere com o informado");
-        assertEquals(subject.getRequiredSubjects().size(), recovered.getRequiredSubjects().size(),
-                "Quantidade de Required Subjects da Subject recuperada não confere com a informada");
+        assertEquals(subject.getId(), retrieved.getId(), "retrieved subject id is incorrect");
+        assertEquals(subject.getCode(), retrieved.getCode(), "retrieved subject code is incorrect");
+        assertEquals(subject.getName(), retrieved.getName(), "retrieved subject name is incorrect");
+        assertEquals(subject.getCredits(), retrieved.getCredits(), "retrieved subject credits is incorrect");
+        assertEquals(subject.getRequiredCredits(), retrieved.getRequiredCredits(), "retrieved subject required credits is incorrect");
+        assertEquals(subject.getRequiredSubjects(), retrieved.getRequiredSubjects(), "retrieved subject required subjects is incorrect");
     }
 
     private void update(Subject subject) {
         final Subject updated = dbTesting.inTransaction(() -> dao.persist(subject));
 
-        assertEquals(subject.getId(), updated.getId(), "Ao ser atualizada, Subject teve seu ID alterado");
-        assertEquals(subject.getName(), updated.getName(), "Name da Subject não foi alterado corretamente");
-        assertEquals(subject.getCode(), updated.getCode(), "Code da Subject não foi alterado corretamente");
-        if (subject.getTeacher() != null) {
-            assertNotNull(updated.getTeacher(), "Nenhum Teacher foi associado à Subject");
-            assertEquals(subject.getTeacher().getId(), updated.getTeacher().getId(), "Teacher correto não foi associado à Subject");
-        } else {
-            assertNull(updated.getTeacher(), "Teacher foi associado à Subject ao atualizá-la");
-        }
-        assertEquals(subject.getStudents().size(), updated.getStudents().size(), "Lista de Students foi alterada incorretamente");
-        assertEquals(subject.getCredits(), updated.getCredits(), "O valor de credits da Subject não foi atualizado corretamente");
-        assertEquals(subject.getRequiredCredits(), updated.getRequiredCredits(), "Required credits não foi atualizado corretamente");
-        assertEquals(subject.getRequiredSubjects().size(), updated.getRequiredSubjects().size(),
-                "Pré-requisitos não foram atualizados corretamente");
+        assertEquals(subject.getId(), updated.getId(), "updated subject id is incorrect");
+        assertEquals(subject.getName(), updated.getName(), "updated subject name is incorrect");
+        assertEquals(subject.getCode(), updated.getCode(), "updated subject code is incorrect");
+        assertEquals(subject.getStudents(), updated.getStudents(), "updated students list is incorrect");
+        assertEquals(subject.getCredits(), updated.getCredits(), "updated subject credits is incorrect");
+        assertEquals(subject.getRequiredCredits(), updated.getRequiredCredits(), "updated subject required credits is incorrect");
+        assertEquals(subject.getRequiredSubjects(), updated.getRequiredSubjects(), "updated subject required subjects is incorrect" );
     }
 
     private void delete(Subject subject) {

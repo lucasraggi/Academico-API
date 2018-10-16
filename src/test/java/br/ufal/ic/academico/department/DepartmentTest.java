@@ -12,9 +12,7 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 class DepartmentTest {
@@ -51,11 +49,13 @@ class DepartmentTest {
         final Department department = new Department(name);
         final Department saved = dbTesting.inTransaction(() -> dao.persist(department));
 
-        assertNotNull(saved, "failed to save department");
-        assertNotNull(saved.getId(), "department did not receiva an id");
-        assertEquals(department.getName(), saved.getName(), "department name is different from the predicted");
-        assertNull(saved.getGraduate(), "department received an graduation secretary when it shouldnt");
-        assertNull(saved.getPostgraduate(), "department received an graduation secretary when it shouldnt");
+        assertAll(
+                () -> assertNotNull(saved, "failed to save department"),
+                () -> assertNotNull(saved.getId(), "department did not receiva an id"),
+                () -> assertEquals(department.getName(), saved.getName(), "department name is different from the predicted"),
+                () -> assertNull(saved.getGraduate(), "department received an graduation secretary when it shouldnt"),
+                () -> assertNull(saved.getPostgraduate(), "department received an graduation secretary when it shouldnt")
+        );
 
         return department;
     }
